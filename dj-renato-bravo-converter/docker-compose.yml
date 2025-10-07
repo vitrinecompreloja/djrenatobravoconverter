@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  dj-renato-converter:
+    build: .
+    container_name: dj-renato-bravo-converter
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - ACCESS_CODE=RENATO-BRAVO-ONLY
+    volumes:
+      - ./backend/tmp:/app/backend/tmp
+      - converter_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - converter_network
+
+volumes:
+  converter_data:
+    driver: local
+
+networks:
+  converter_network:
+    driver: bridge
